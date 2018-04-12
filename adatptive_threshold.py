@@ -1,7 +1,8 @@
 # coding:utf-8
 import numpy as np
 import cv2
-
+from BoxFilter import boxFilter
+import time
 
 def adaptive_threshold(src, maxValue=255, blockSize=7, delta=3, debug=False):
     assert(blockSize % 2 == 1 and blockSize > 1)
@@ -16,7 +17,8 @@ def adaptive_threshold(src, maxValue=255, blockSize=7, delta=3, debug=False):
         return dst
 
     # 计算平均值作为比较值
-    mean = cv2.boxFilter(src, -1, (blockSize, blockSize), normalize=True, borderType=cv2.BORDER_REPLICATE)
+    # mean = cv2.boxFilter(src, -1, (blockSize, blockSize), normalize=True, borderType=cv2.BORDER_REPLICATE)
+    mean = boxFilter(src, blockSize)
 
     imaxval = np.clip(maxValue, 0, 255)
     idelta = delta
@@ -42,6 +44,9 @@ def adaptive_threshold(src, maxValue=255, blockSize=7, delta=3, debug=False):
 
 if __name__ == "__main__":
     src = cv2.imread("/Volumes/Transcend/高内涵/master/MDA-MB-231-20171212-4x-4D-M2.jpg", 0)
-    bw = adaptive_threshold(src, blockSize=861, delta=30)
+    src = cv2.resize(src, (400, 300), interpolation=cv2.INTER_AREA)
+    st = time.time()
+    bw = adaptive_threshold(src, blockSize=201, delta=30)
+    print("elapsed: ", time.time() - st)
     cv2.imshow("1", bw)
     cv2.waitKey(0)
