@@ -43,10 +43,11 @@ def adaptive_threshold(src, maxValue=255, blockSize=7, delta=3, debug=False):
 
 
 if __name__ == "__main__":
-    src = cv2.imread("/Volumes/Transcend/高内涵/master/MDA-MB-231-20171212-4x-4D-M2.jpg", 0)
+    src = cv2.imread("/Volumes/Transcend/高内涵/image/明场/10ms/PRO1_HCT-116_M_Day10_4x_Bright_10ms_10ms_20180411131703_O.bmp")
     src = cv2.resize(src, (400, 300), interpolation=cv2.INTER_AREA)
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     st = time.time()
-    bw = adaptive_threshold(src, blockSize=201, delta=30)
+    bw = adaptive_threshold(src_gray, blockSize=201, delta=30)
     print("elapsed: ", time.time() - st)
     cv2.imshow("1", bw)
     cv2.waitKey(0)
