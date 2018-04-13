@@ -10,6 +10,7 @@ import numpy as np
 import cv2
 import sys
 import getopt
+from math import sqrt
 
 
 def readImage(filename):
@@ -100,7 +101,7 @@ def boxFilter(img, filterSize):
     height = img.shape[0]
     width = img.shape[1]
     intImg = integralImage(img)
-    finalImg = np.ones((height, width), np.uint64)
+    finalImg = np.zeros((height, width), np.uint64)
     # print("Printing integral image...")
     # print(intImg)
     # cv2.imwrite("integral_image.png", intImg)
@@ -116,6 +117,67 @@ def boxFilter(img, filterSize):
     return finalImg
 
 
+def boxFilterStd(img, filterSize):
+    """
+    Runs the subsequent box filtering steps. Prints original image, finds integral image, and then outputs final image
+    :param img: An image in matrix form.
+    :param filterSize: The filter size of the matrix
+    :return: A final image written as finalimage.png
+    """
+    height = img.shape[0]
+    width = img.shape[1]
+    intImg_sum = integralImage(img)
+    finalImg = np.zeros((height, width), np.uint64)
+    img_square = np.square(img.astype(np.uint64))
+    intImg_square = integralImage(img_square)
+    loc = filterSize // 2
+    for y in range(height):
+        for x in range(width):
+            s1 = findArea(intImg_square,  (y - loc - 1, x - loc - 1), (y - loc - 1, x + loc),
+                                              (y + loc, x - loc - 1), (y + loc, x + loc))
+            s2_sum = findArea(intImg_sum, (y - loc - 1, x - loc - 1), (y - loc - 1, x + loc),
+                                              (y + loc, x - loc - 1), (y + loc, x + loc))
+            s2 = s2_sum*s2_sum/(filterSize**2)
+            variance = s1 - s2
+            std_deviation = sqrt(variance/(filterSize**2))
+            finalImg.itemset((y, x), std_deviation)
+    # cv2.imwrite("finalimage11.png", finalImg)
+    return finalImg
+
+
+def boxFilter_MeanStd(img, filterSize):
+    """
+    Runs the subsequent box filtering steps. Prints original image, finds integral image, and then outputs final image
+    :param img: An image in matrix form.
+    :param filterSize: The filter size of the matrix
+    :return: A final image written as finalimage.png
+    """
+    height = img.shape[0]
+    width = img.shape[1]
+    intImg_sum = integralImage(img)
+    finalImg_mean = np.zeros((height, width), np.uint64)
+    finalImg_stdv = np.zeros((height, width), np.uint64)
+
+    img_square = np.square(img.astype(np.uint64))
+    intImg_square = integralImage(img_square)
+    loc = filterSize // 2
+    for y in range(height):
+        for x in range(width):
+            s1 = findArea(intImg_square,  (y - loc - 1, x - loc - 1), (y - loc - 1, x + loc),
+                                              (y + loc, x - loc - 1), (y + loc, x + loc))
+            s2_sum = findArea(intImg_sum, (y - loc - 1, x - loc - 1), (y - loc - 1, x + loc),
+                                              (y + loc, x - loc - 1), (y + loc, x + loc))
+            mean = s2_sum / (filterSize ** 2)
+            s2 = s2_sum * mean  # s2_sum*s2_sum/(filterSize**2)
+            variance = s1 - s2
+            std_deviation = sqrt(variance/(filterSize**2))
+            finalImg_stdv.itemset((y, x), std_deviation)
+            finalImg_mean.itemset((y, x), mean)
+    # cv2.imwrite("finalImg_mean.png", finalImg_mean)
+    # cv2.imwrite("finalImg_stdv.png", finalImg_stdv)
+    return finalImg_mean, finalImg_stdv
+
+
 def main():
     """
     Reads in image and handles argument parsing
@@ -123,7 +185,12 @@ def main():
     """
 
     img = readImage("/Volumes/Transcend/高内涵/master/MDA-MB-231-20171212-4x-4D-M2.jpg")
-    finalImg = boxFilter(img, 5)
+    src = cv2.resize(img, (400, 300), interpolation=cv2.INTER_AREA)
+    # finalImg = boxFilter(src, 201)
+    # finalImg = boxFilterStd(src, 201)
+    finalImg_mean, finalImg_stdv = boxFilter_MeanStd(src, 201)
+    cv2.imshow("finalImg", finalImg_mean)
+    cv2.waitKey()
 
 
 if __name__ == "__main__":
