@@ -5,11 +5,9 @@ USAGE: BoxFilter.py [--filter_size] [<image name>]
 
 Takes an image filename and filter size (which must be an odd number) and returns blurred image based on filter size.
 """
-__author__ = 'hughesj919'
+__author__ = 'hdmjdp'
 import numpy as np
 import cv2
-import sys
-import getopt
 from math import sqrt
 
 
