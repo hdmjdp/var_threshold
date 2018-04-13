@@ -4,7 +4,7 @@ from BoxFilter import boxFilter, boxFilter_MeanStd
 
 
 def adaptive_threshold_var(src, maxValue=255,  # 二值化，线性表中只有2个值 要么0 要么就是maxValue
-                       blockSize=7, delta=3, stdDevScale=0.0, debug=True):
+                       blockSize=7, absThreshold=3, stdDevScale=0.0, debug=True):
     assert (blockSize % 2 == 1 and blockSize > 1)
     height, width = src.shape
     if debug:
@@ -24,7 +24,7 @@ def adaptive_threshold_var(src, maxValue=255,  # 二值化，线性表中只有2
 
     for i in range(height):
         for j in range(width):
-            idelta = max(stdDevScale * stdv[i, j], delta)
+            idelta = max(stdDevScale * stdv[i, j], absThreshold)
             if int(src[i, j]) - int(mean[i, j]) > -idelta:
                 dst[i, j] = imaxval
             else:
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     src = cv2.resize(src, (400, 300), interpolation=cv2.INTER_AREA)
     import time
     st = time.time()
-    bw1 = adaptive_threshold_var(src, blockSize=201, delta=30, stdDevScale=1.2, debug=False)
+    bw1 = adaptive_threshold_var(src, blockSize=201, absThreshold=30, stdDevScale=1.2, debug=False)
     st1 = time.time()
     print(time.time() - st1)
 
