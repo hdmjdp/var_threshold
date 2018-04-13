@@ -7,3 +7,5 @@
 基于积分图进行加速计算 重新实现boxfileter
 
 
+# halcon var_threshold说明：
+![Image text](https://github.com/hdmjdp/var_threshold/blob/master/haclon.jpg)
